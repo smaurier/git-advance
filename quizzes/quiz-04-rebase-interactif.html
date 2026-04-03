@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz 04 — Rebase Interactif</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem; color: #ffffff; }
+    .subtitle { text-align: center; color: #8892b0; margin-bottom: 2rem; font-size: 1rem; }
+    .progress-bar-container { background: #0d1117; border-radius: 10px; height: 14px; margin-bottom: 2rem; overflow: hidden; }
+    .progress-bar { background: linear-gradient(90deg, #0d6efd, #4dabf7); height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s ease; }
+    .progress-text { text-align: center; color: #8892b0; margin-bottom: 1rem; font-size: 0.9rem; }
+    .card { background: #16213e; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .question-label { font-size: 0.85rem; color: #4dabf7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .question-text { font-size: 1.15rem; margin-bottom: 1.2rem; line-height: 1.5; color: #ffffff; }
+    pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem; overflow-x: auto; font-size: 0.95rem; }
+    code { font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; color: #c9d1d9; }
+    .options { list-style: none; }
+    .options li { margin-bottom: 0.5rem; }
+    .options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem 1rem; background: #0d1117; border: 2px solid #30363d; border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 1rem; }
+    .options label:hover { border-color: #4dabf7; background: #1c2a4a; }
+    .options input[type="radio"] { accent-color: #0d6efd; width: 18px; height: 18px; flex-shrink: 0; }
+    .btn { display: inline-block; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-primary { background: #0d6efd; color: #fff; }
+    .btn-primary:hover { background: #3b82f6; }
+    .btn-primary:disabled { background: #374151; cursor: not-allowed; }
+    .btn-restart { background: #238636; color: #fff; margin-top: 1rem; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-restart:hover { background: #2ea043; }
+    .feedback { margin-top: 1rem; padding: 1rem 1.2rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5; display: none; }
+    .feedback.correct { background: #0f5132; border: 1px solid #198754; color: #d1fae5; display: block; }
+    .feedback.wrong { background: #842029; border: 1px solid #dc3545; color: #fdd; display: block; }
+    .score-card { text-align: center; padding: 3rem 2rem; }
+    .score-card .score { font-size: 3rem; font-weight: 700; color: #4dabf7; margin-bottom: 0.5rem; }
+    .score-card .score-label { font-size: 1.2rem; color: #8892b0; margin-bottom: 1.5rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz 04 — Rebase Interactif</h1>
+    <p class="subtitle">pick, squash, fixup, edit, reword, drop</p>
+    <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="progress-text" id="progressText">Question 1 / 5</p>
+    <div id="quizContainer"></div>
+    <div id="scoreContainer" class="card score-card hidden"></div>
+  </div>
+  <script>
+    const questions = [
+      {
+        label: "Question 1 — Squash",
+        text: "Dans un rebase interactif, que fait l'action <code>squash</code> (ou <code>s</code>) ?",
+        code: "git rebase -i HEAD~3\n# pick abc1234 Ajout du header\n# squash def5678 Fix typo dans header\n# squash ghi9012 Ajout style header",
+        options: [
+          "Elle supprime le commit sans garder ses modifications",
+          "Elle fusionne le commit avec le précédent et permet de combiner les messages des deux commits",
+          "Elle renomme le message du commit sans changer le contenu",
+          "Elle met en pause le rebase pour permettre des modifications manuelles"
+        ],
+        answer: 1,
+        explanation: "<strong>squash</strong> fusionne le commit avec le commit précédent (celui au-dessus dans la liste). L'éditeur s'ouvre ensuite pour vous permettre de combiner ou réécrire les messages des commits fusionnés."
+      },
+      {
+        label: "Question 2 — Squash vs Fixup",
+        text: "Quelle est la différence entre <code>squash</code> et <code>fixup</code> dans un rebase interactif ?",
+        code: "# squash : fusionne + combine les messages\n# fixup  : fusionne + jette le message du commit fusionné\npick abc1234 Implémentation du login\nfixup def5678 fix: correction login",
+        options: [
+          "squash garde les modifications mais pas le message, fixup garde le message mais pas les modifications",
+          "squash combine les messages des deux commits, fixup jette le message du commit fusionné et garde celui du commit précédent",
+          "fixup est plus rapide que squash mais produit le même résultat",
+          "Il n'y a aucune différence, ce sont des alias"
+        ],
+        answer: 1,
+        explanation: "La seule différence est le traitement du message de commit. <strong>squash</strong> ouvre l'éditeur pour combiner les messages. <strong>fixup</strong> jette silencieusement le message du commit fusionné et conserve uniquement le message du commit précédent."
+      },
+      {
+        label: "Question 3 — Edit",
+        text: "Que permet l'action <code>edit</code> (ou <code>e</code>) dans un rebase interactif ?",
+        code: "git rebase -i HEAD~5\n# edit abc1234 Commit à modifier\n# Le rebase s'arrête à ce commit\n# → Faire les modifications souhaitées\ngit add .\ngit commit --amend\ngit rebase --continue",
+        options: [
+          "Elle supprime le commit et demande d'en créer un nouveau",
+          "Elle met en pause le rebase sur ce commit, permettant de modifier son contenu ou de le diviser en plusieurs commits",
+          "Elle change uniquement le message du commit",
+          "Elle déplace le commit à une autre position dans l'historique"
+        ],
+        answer: 1,
+        explanation: "<strong>edit</strong> met le rebase en pause juste après avoir appliqué le commit. Vous pouvez alors modifier des fichiers, faire un <code>git commit --amend</code>, ou même diviser le commit en plusieurs. On reprend avec <code>git rebase --continue</code>."
+      },
+      {
+        label: "Question 4 — Commit --fixup",
+        text: "Que fait la commande <code>git commit --fixup=&lt;sha&gt;</code> ?",
+        code: "# Correction pour le commit abc1234 :\ngit add fichier-corrigé.ts\ngit commit --fixup=abc1234\n# Crée un commit \"fixup! message du commit abc1234\"\n\n# Puis pour appliquer automatiquement :\ngit rebase -i --autosquash HEAD~5",
+        options: [
+          "Elle annule le commit identifié par le SHA",
+          "Elle crée un commit préfixé « fixup! » qui sera automatiquement fusionné avec le commit cible lors d'un rebase --autosquash",
+          "Elle modifie directement le commit identifié par le SHA sans créer de nouveau commit",
+          "Elle marque le commit comme défectueux dans l'historique"
+        ],
+        answer: 1,
+        explanation: "<strong>git commit --fixup=&lt;sha&gt;</strong> crée un nouveau commit avec le préfixe « fixup! » dans son message. Lors d'un <code>git rebase -i --autosquash</code>, ce commit sera automatiquement placé après le commit cible avec l'action fixup."
+      },
+      {
+        label: "Question 5 — Récupération après erreur",
+        text: "Comment récupérer l'état précédent après un rebase interactif qui a mal tourné ?",
+        code: "# Le rebase a causé des problèmes...\ngit reflog\n# abc1234 HEAD@{2}: rebase (start): ...\n# def5678 HEAD@{3}: commit: Mon dernier bon état\ngit reset --hard def5678",
+        options: [
+          "C'est impossible, les commits récrits sont perdus définitivement",
+          "Il faut utiliser git rebase --undo qui est prévu à cet effet",
+          "On utilise git reflog pour retrouver le SHA avant le rebase, puis git reset --hard pour y revenir",
+          "On doit faire un git pull --force pour récupérer l'état du serveur distant"
+        ],
+        answer: 2,
+        explanation: "<strong>git reflog</strong> enregistre tous les mouvements de HEAD, y compris avant le rebase. On retrouve le SHA du dernier bon état, puis on utilise <code>git reset --hard &lt;sha&gt;</code> pour y revenir. Les anciens commits restent accessibles via le reflog pendant environ 90 jours."
+      }
+    ];
+
+    let current = 0, score = 0, answered = false;
+    const container = document.getElementById('quizContainer');
+    const scoreContainer = document.getElementById('scoreContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    function render() {
+      if (current >= questions.length) return showScore();
+      const q = questions[current];
+      progressBar.style.width = ((current / questions.length) * 100) + '%';
+      progressText.textContent = `Question ${current + 1} / ${questions.length}`;
+      answered = false;
+      let html = `<div class="card"><p class="question-label">${q.label}</p><p class="question-text">${q.text}</p>`;
+      if (q.code) html += `<pre><code>${q.code}</code></pre>`;
+      html += `<ul class="options">`;
+      q.options.forEach((opt, i) => {
+        html += `<li><label><input type="radio" name="q" value="${i}"><span>${opt}</span></label></li>`;
+      });
+      html += `</ul><button class="btn btn-primary" id="submitBtn" disabled onclick="checkAnswer()">Valider</button><div id="feedback" class="feedback"></div></div>`;
+      container.innerHTML = html;
+      document.querySelectorAll('input[name="q"]').forEach(input => {
+        input.addEventListener('change', () => { if (!answered) document.getElementById('submitBtn').disabled = false; });
+      });
+    }
+
+    function checkAnswer() {
+      if (answered) return;
+      answered = true;
+      const selected = document.querySelector('input[name="q"]:checked');
+      if (!selected) return;
+      const idx = parseInt(selected.value);
+      const q = questions[current];
+      const feedback = document.getElementById('feedback');
+      if (idx === q.answer) {
+        score++;
+        feedback.className = 'feedback correct';
+        feedback.innerHTML = `✅ Correct ! ${q.explanation}`;
+      } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerHTML = `❌ Incorrect. ${q.explanation}`;
+      }
+      document.getElementById('submitBtn').textContent = 'Suivant →';
+      document.getElementById('submitBtn').onclick = () => { current++; render(); };
+    }
+
+    function showScore() {
+      progressBar.style.width = '100%';
+      progressText.textContent = `Terminé !`;
+      container.innerHTML = '';
+      const pct = Math.round((score / questions.length) * 100);
+      let msg = pct === 100 ? '🏆 Parfait !' : pct >= 60 ? '👍 Bien joué !' : '📚 À revoir';
+      scoreContainer.innerHTML = `<div class="score">${score}/${questions.length}</div><div class="score-label">${pct}% — ${msg}</div><button class="btn-restart" onclick="location.reload()">🔄 Recommencer</button>`;
+      scoreContainer.classList.remove('hidden');
+    }
+
+    render();
+  </script>
+</body>
+</html>

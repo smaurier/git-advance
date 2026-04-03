@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz 07 — Worktrees & Submodules</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem; color: #ffffff; }
+    .subtitle { text-align: center; color: #8892b0; margin-bottom: 2rem; font-size: 1rem; }
+    .progress-bar-container { background: #0d1117; border-radius: 10px; height: 14px; margin-bottom: 2rem; overflow: hidden; }
+    .progress-bar { background: linear-gradient(90deg, #0d6efd, #4dabf7); height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s ease; }
+    .progress-text { text-align: center; color: #8892b0; margin-bottom: 1rem; font-size: 0.9rem; }
+    .card { background: #16213e; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .question-label { font-size: 0.85rem; color: #4dabf7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .question-text { font-size: 1.15rem; margin-bottom: 1.2rem; line-height: 1.5; color: #ffffff; }
+    pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem; overflow-x: auto; font-size: 0.95rem; }
+    code { font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; color: #c9d1d9; }
+    .options { list-style: none; }
+    .options li { margin-bottom: 0.5rem; }
+    .options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem 1rem; background: #0d1117; border: 2px solid #30363d; border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 1rem; }
+    .options label:hover { border-color: #4dabf7; background: #1c2a4a; }
+    .options input[type="radio"] { accent-color: #0d6efd; width: 18px; height: 18px; flex-shrink: 0; }
+    .btn { display: inline-block; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-primary { background: #0d6efd; color: #fff; }
+    .btn-primary:hover { background: #3b82f6; }
+    .btn-primary:disabled { background: #374151; cursor: not-allowed; }
+    .btn-restart { background: #238636; color: #fff; margin-top: 1rem; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-restart:hover { background: #2ea043; }
+    .feedback { margin-top: 1rem; padding: 1rem 1.2rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5; display: none; }
+    .feedback.correct { background: #0f5132; border: 1px solid #198754; color: #d1fae5; display: block; }
+    .feedback.wrong { background: #842029; border: 1px solid #dc3545; color: #fdd; display: block; }
+    .score-card { text-align: center; padding: 3rem 2rem; }
+    .score-card .score { font-size: 3rem; font-weight: 700; color: #4dabf7; margin-bottom: 0.5rem; }
+    .score-card .score-label { font-size: 1.2rem; color: #8892b0; margin-bottom: 1.5rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz 07 — Worktrees & Submodules</h1>
+    <p class="subtitle">Espaces de travail multiples et dépendances Git</p>
+    <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="progress-text" id="progressText">Question 1 / 5</p>
+    <div id="quizContainer"></div>
+    <div id="scoreContainer" class="card score-card hidden"></div>
+  </div>
+  <script>
+    const questions = [
+      {
+        label: "Question 1 — Git Worktree",
+        text: "Qu'est-ce qu'un <code>git worktree</code> ?",
+        options: [
+          "Un outil de visualisation de l'arborescence des fichiers du dépôt",
+          "Un répertoire de travail supplémentaire lié au même dépôt Git, permettant de travailler sur plusieurs branches simultanément",
+          "Un alias pour git stash qui sauvegarde l'arbre de travail",
+          "Un dossier temporaire créé lors d'un merge pour stocker les conflits"
+        ],
+        answer: 1,
+        explanation: "Un <strong>git worktree</strong> est un répertoire de travail additionnel rattaché au même dépôt. Il permet de checkout une branche différente dans un autre dossier sans avoir à stash ou commiter son travail en cours. Tous les worktrees partagent le même .git."
+      },
+      {
+        label: "Question 2 — Ajouter un worktree",
+        text: "Quelle commande permet de créer un nouveau worktree pour la branche <code>hotfix/login</code> ?",
+        code: "git worktree add ../hotfix-login hotfix/login\n# Crée le dossier ../hotfix-login avec la branche hotfix/login",
+        options: [
+          "git branch --worktree hotfix/login ../hotfix-login",
+          "git checkout --new-worktree ../hotfix-login hotfix/login",
+          "git worktree add ../hotfix-login hotfix/login",
+          "git clone --worktree hotfix/login ../hotfix-login"
+        ],
+        answer: 2,
+        explanation: "La commande <strong>git worktree add &lt;chemin&gt; &lt;branche&gt;</strong> crée un nouveau répertoire de travail au chemin spécifié avec la branche indiquée. On peut ensuite lister les worktrees avec <code>git worktree list</code> et les supprimer avec <code>git worktree remove</code>."
+      },
+      {
+        label: "Question 3 — Git Submodule",
+        text: "Qu'est-ce qu'un <code>git submodule</code> ?",
+        code: "git submodule add https://github.com/lib/utils.git libs/utils\n# Crée .gitmodules et ajoute le sous-module",
+        options: [
+          "Un module Node.js installé dans node_modules/",
+          "Un dépôt Git imbriqué dans un autre dépôt, référencé par un commit spécifique",
+          "Un fichier de configuration qui liste les dépendances du projet",
+          "Un hook Git qui vérifie les modules importés"
+        ],
+        answer: 1,
+        explanation: "Un <strong>git submodule</strong> est un dépôt Git imbriqué dans un autre. Le dépôt parent stocke une référence vers un commit précis du sous-module dans le fichier <code>.gitmodules</code>. Cela permet d'inclure des dépendances externes tout en gardant leur historique séparé."
+      },
+      {
+        label: "Question 4 — Initialisation des submodules",
+        text: "Pourquoi doit-on exécuter <code>git submodule update --init --recursive</code> après un clone ?",
+        code: "git clone https://github.com/org/project.git\ncd project\n# Les dossiers des submodules sont vides !\ngit submodule update --init --recursive",
+        options: [
+          "Pour mettre à jour les submodules vers leur dernière version",
+          "Pour initialiser les submodules enregistrés dans .gitmodules et récupérer leur contenu, y compris les sous-submodules",
+          "Pour convertir les submodules en dossiers normaux",
+          "Pour supprimer les submodules obsolètes"
+        ],
+        answer: 1,
+        explanation: "<strong>--init</strong> initialise la configuration des submodules à partir de .gitmodules. <strong>update</strong> récupère le contenu au commit référencé. <strong>--recursive</strong> applique la même opération aux sous-submodules (submodules dans des submodules). Sans cela, les dossiers des submodules restent vides après un clone."
+      },
+      {
+        label: "Question 5 — Alternative aux submodules",
+        text: "Quelle est l'alternative principale aux submodules et quelle est sa différence fondamentale ?",
+        code: "# Subtree : copie le code dans le dépôt\ngit subtree add --prefix=libs/utils \\\n  https://github.com/lib/utils.git main --squash",
+        options: [
+          "git subrepo — il fonctionne exactement comme submodule mais en plus rapide",
+          "git subtree — il copie le code directement dans le dépôt au lieu de garder une référence externe",
+          "git lfs — il stocke les gros fichiers dans un serveur séparé",
+          "npm link — il crée des liens symboliques vers d'autres projets"
+        ],
+        answer: 1,
+        explanation: "<strong>git subtree</strong> est l'alternative principale. Contrairement aux submodules qui gardent une référence vers un dépôt externe, subtree <strong>copie le code</strong> directement dans l'arborescence du projet. Avantage : pas besoin d'initialisation spéciale après un clone. Inconvénient : la synchronisation avec le dépôt source est plus complexe."
+      }
+    ];
+
+    let current = 0, score = 0, answered = false;
+    const container = document.getElementById('quizContainer');
+    const scoreContainer = document.getElementById('scoreContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    function render() {
+      if (current >= questions.length) return showScore();
+      const q = questions[current];
+      progressBar.style.width = ((current / questions.length) * 100) + '%';
+      progressText.textContent = `Question ${current + 1} / ${questions.length}`;
+      answered = false;
+      let html = `<div class="card"><p class="question-label">${q.label}</p><p class="question-text">${q.text}</p>`;
+      if (q.code) html += `<pre><code>${q.code}</code></pre>`;
+      html += `<ul class="options">`;
+      q.options.forEach((opt, i) => {
+        html += `<li><label><input type="radio" name="q" value="${i}"><span>${opt}</span></label></li>`;
+      });
+      html += `</ul><button class="btn btn-primary" id="submitBtn" disabled onclick="checkAnswer()">Valider</button><div id="feedback" class="feedback"></div></div>`;
+      container.innerHTML = html;
+      document.querySelectorAll('input[name="q"]').forEach(input => {
+        input.addEventListener('change', () => { if (!answered) document.getElementById('submitBtn').disabled = false; });
+      });
+    }
+
+    function checkAnswer() {
+      if (answered) return;
+      answered = true;
+      const selected = document.querySelector('input[name="q"]:checked');
+      if (!selected) return;
+      const idx = parseInt(selected.value);
+      const q = questions[current];
+      const feedback = document.getElementById('feedback');
+      if (idx === q.answer) {
+        score++;
+        feedback.className = 'feedback correct';
+        feedback.innerHTML = `✅ Correct ! ${q.explanation}`;
+      } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerHTML = `❌ Incorrect. ${q.explanation}`;
+      }
+      document.getElementById('submitBtn').textContent = 'Suivant →';
+      document.getElementById('submitBtn').onclick = () => { current++; render(); };
+    }
+
+    function showScore() {
+      progressBar.style.width = '100%';
+      progressText.textContent = `Terminé !`;
+      container.innerHTML = '';
+      const pct = Math.round((score / questions.length) * 100);
+      let msg = pct === 100 ? '🏆 Parfait !' : pct >= 60 ? '👍 Bien joué !' : '📚 À revoir';
+      scoreContainer.innerHTML = `<div class="score">${score}/${questions.length}</div><div class="score-label">${pct}% — ${msg}</div><button class="btn-restart" onclick="location.reload()">🔄 Recommencer</button>`;
+      scoreContainer.classList.remove('hidden');
+    }
+
+    render();
+  </script>
+</body>
+</html>

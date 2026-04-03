@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz 08 — Monorepos</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.8rem; color: #ffffff; }
+    .subtitle { text-align: center; color: #8892b0; margin-bottom: 2rem; font-size: 1rem; }
+    .progress-bar-container { background: #0d1117; border-radius: 10px; height: 14px; margin-bottom: 2rem; overflow: hidden; }
+    .progress-bar { background: linear-gradient(90deg, #0d6efd, #4dabf7); height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s ease; }
+    .progress-text { text-align: center; color: #8892b0; margin-bottom: 1rem; font-size: 0.9rem; }
+    .card { background: #16213e; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .question-label { font-size: 0.85rem; color: #4dabf7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .question-text { font-size: 1.15rem; margin-bottom: 1.2rem; line-height: 1.5; color: #ffffff; }
+    pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem; overflow-x: auto; font-size: 0.95rem; }
+    code { font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; color: #c9d1d9; }
+    .options { list-style: none; }
+    .options li { margin-bottom: 0.5rem; }
+    .options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem 1rem; background: #0d1117; border: 2px solid #30363d; border-radius: 8px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 1rem; }
+    .options label:hover { border-color: #4dabf7; background: #1c2a4a; }
+    .options input[type="radio"] { accent-color: #0d6efd; width: 18px; height: 18px; flex-shrink: 0; }
+    .btn { display: inline-block; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-primary { background: #0d6efd; color: #fff; }
+    .btn-primary:hover { background: #3b82f6; }
+    .btn-primary:disabled { background: #374151; cursor: not-allowed; }
+    .btn-restart { background: #238636; color: #fff; margin-top: 1rem; padding: 0.7rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-restart:hover { background: #2ea043; }
+    .feedback { margin-top: 1rem; padding: 1rem 1.2rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5; display: none; }
+    .feedback.correct { background: #0f5132; border: 1px solid #198754; color: #d1fae5; display: block; }
+    .feedback.wrong { background: #842029; border: 1px solid #dc3545; color: #fdd; display: block; }
+    .score-card { text-align: center; padding: 3rem 2rem; }
+    .score-card .score { font-size: 3rem; font-weight: 700; color: #4dabf7; margin-bottom: 0.5rem; }
+    .score-card .score-label { font-size: 1.2rem; color: #8892b0; margin-bottom: 1.5rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz 08 — Monorepos</h1>
+    <p class="subtitle">pnpm workspaces, Nx, Turborepo</p>
+    <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="progress-text" id="progressText">Question 1 / 5</p>
+    <div id="quizContainer"></div>
+    <div id="scoreContainer" class="card score-card hidden"></div>
+  </div>
+  <script>
+    const questions = [
+      {
+        label: "Question 1 — Définition",
+        text: "Qu'est-ce qu'un monorepo ?",
+        options: [
+          "Un dépôt Git qui ne contient qu'un seul fichier monolithique",
+          "Un dépôt unique contenant plusieurs projets ou packages liés, gérés ensemble",
+          "Un dépôt Git qui n'autorise qu'un seul contributeur",
+          "Un dépôt qui utilise une seule branche sans aucune ramification"
+        ],
+        answer: 1,
+        explanation: "Un <strong>monorepo</strong> est un dépôt unique qui héberge plusieurs projets ou packages (frontend, backend, libs partagées…). Des entreprises comme Google, Meta et Microsoft l'utilisent. Il facilite le partage de code, les refactorings transversaux et la cohérence des versions."
+      },
+      {
+        label: "Question 2 — pnpm Workspaces",
+        text: "Qu'apportent les <code>pnpm workspaces</code> dans un monorepo ?",
+        code: "# pnpm-workspace.yaml\npackages:\n  - 'apps/*'\n  - 'packages/*'\n\n# Référencer un package interne :\n# \"@my-org/shared\": \"workspace:*\"",
+        options: [
+          "Ils compilent automatiquement tous les packages en un seul bundle",
+          "Ils permettent de gérer les dépendances partagées et de créer des liens entre packages internes du monorepo",
+          "Ils remplacent Git pour la gestion des versions",
+          "Ils déploient automatiquement chaque package sur npm"
+        ],
+        answer: 1,
+        explanation: "<strong>pnpm workspaces</strong> permettent de déclarer la structure du monorepo, de partager les dépendances communes (hoisting) et de référencer des packages internes via le protocole <code>workspace:*</code>. Cela évite de publier sur npm pour utiliser un package local."
+      },
+      {
+        label: "Question 3 — Nx",
+        text: "Quelle est la fonctionnalité clé de Nx dans un monorepo ?",
+        code: "# Exécuter les tests uniquement sur les projets affectés :\nnpx nx affected --target=test --base=main --head=HEAD\n\n# Cache des résultats de build :\nnpx nx build my-app  # → cache hit !",
+        options: [
+          "Nx est un gestionnaire de packages qui remplace npm et pnpm",
+          "Nx fournit un cache de calcul intelligent et la détection des projets affectés par un changement",
+          "Nx est un framework frontend qui remplace React et Angular",
+          "Nx est un outil de monitoring de performance en production"
+        ],
+        answer: 1,
+        explanation: "<strong>Nx</strong> offre un <strong>cache de calcul</strong> (local et distant) qui évite de ré-exécuter des tâches dont les entrées n'ont pas changé, et une <strong>détection des projets affectés</strong> (affected) pour ne tester/builder que ce qui a changé. Cela accélère considérablement la CI."
+      },
+      {
+        label: "Question 4 — Turborepo",
+        text: "Qu'est-ce que Turborepo optimise principalement ?",
+        code: "// turbo.json\n{\n  \"pipeline\": {\n    \"build\": {\n      \"dependsOn\": [\"^build\"],\n      \"outputs\": [\"dist/**\"]\n    },\n    \"test\": {\n      \"dependsOn\": [\"build\"]\n    }\n  }\n}",
+        options: [
+          "La taille du dépôt Git en compressant les fichiers",
+          "Le pipeline de tâches avec mise en cache et exécution parallèle basée sur le graphe de dépendances",
+          "La résolution DNS pour accélérer les git fetch",
+          "Le formatage automatique du code dans tous les packages"
+        ],
+        answer: 1,
+        explanation: "<strong>Turborepo</strong> optimise l'exécution des tâches (build, test, lint) en définissant un <strong>pipeline</strong> avec des dépendances entre tâches. Il exécute les tâches indépendantes en parallèle, met en cache les résultats et utilise le <code>dependsOn</code> pour respecter l'ordre du graphe."
+      },
+      {
+        label: "Question 5 — CI et packages affectés",
+        text: "Comment exécuter la CI uniquement sur les packages modifiés dans un monorepo ?",
+        code: "# Nx : détection des projets affectés\nnpx nx affected --target=test --base=origin/main\n\n# Turborepo : filtrage par changements\nnpx turbo run test --filter=...[origin/main]",
+        options: [
+          "On exécute tous les tests de tous les packages à chaque commit, c'est la seule approche fiable",
+          "On utilise la détection de changements (affected/filter) qui compare les fichiers modifiés entre la base et le HEAD pour déterminer quels packages tester",
+          "On crée un dépôt séparé pour chaque package afin d'isoler la CI",
+          "On désactive la CI pour les packages qui n'ont pas été modifiés depuis plus d'un mois"
+        ],
+        answer: 1,
+        explanation: "Les outils de monorepo comme Nx et Turborepo analysent le <strong>graphe de dépendances</strong> et les fichiers modifiés (diff entre base et HEAD) pour identifier les packages affectés. Seuls ces packages (et leurs dépendants) sont testés/buildés, réduisant drastiquement le temps de CI."
+      }
+    ];
+
+    let current = 0, score = 0, answered = false;
+    const container = document.getElementById('quizContainer');
+    const scoreContainer = document.getElementById('scoreContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    function render() {
+      if (current >= questions.length) return showScore();
+      const q = questions[current];
+      progressBar.style.width = ((current / questions.length) * 100) + '%';
+      progressText.textContent = `Question ${current + 1} / ${questions.length}`;
+      answered = false;
+      let html = `<div class="card"><p class="question-label">${q.label}</p><p class="question-text">${q.text}</p>`;
+      if (q.code) html += `<pre><code>${q.code}</code></pre>`;
+      html += `<ul class="options">`;
+      q.options.forEach((opt, i) => {
+        html += `<li><label><input type="radio" name="q" value="${i}"><span>${opt}</span></label></li>`;
+      });
+      html += `</ul><button class="btn btn-primary" id="submitBtn" disabled onclick="checkAnswer()">Valider</button><div id="feedback" class="feedback"></div></div>`;
+      container.innerHTML = html;
+      document.querySelectorAll('input[name="q"]').forEach(input => {
+        input.addEventListener('change', () => { if (!answered) document.getElementById('submitBtn').disabled = false; });
+      });
+    }
+
+    function checkAnswer() {
+      if (answered) return;
+      answered = true;
+      const selected = document.querySelector('input[name="q"]:checked');
+      if (!selected) return;
+      const idx = parseInt(selected.value);
+      const q = questions[current];
+      const feedback = document.getElementById('feedback');
+      if (idx === q.answer) {
+        score++;
+        feedback.className = 'feedback correct';
+        feedback.innerHTML = `✅ Correct ! ${q.explanation}`;
+      } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerHTML = `❌ Incorrect. ${q.explanation}`;
+      }
+      document.getElementById('submitBtn').textContent = 'Suivant →';
+      document.getElementById('submitBtn').onclick = () => { current++; render(); };
+    }
+
+    function showScore() {
+      progressBar.style.width = '100%';
+      progressText.textContent = `Terminé !`;
+      container.innerHTML = '';
+      const pct = Math.round((score / questions.length) * 100);
+      let msg = pct === 100 ? '🏆 Parfait !' : pct >= 60 ? '👍 Bien joué !' : '📚 À revoir';
+      scoreContainer.innerHTML = `<div class="score">${score}/${questions.length}</div><div class="score-label">${pct}% — ${msg}</div><button class="btn-restart" onclick="location.reload()">🔄 Recommencer</button>`;
+      scoreContainer.classList.remove('hidden');
+    }
+
+    render();
+  </script>
+</body>
+</html>
