@@ -118,31 +118,26 @@ Exemples :
 
 ## Release automation
 
-### standard-version / release-please
+### release-please (recommandé)
+
+> `standard-version` est **déprécié** (dernier commit 2021, plus maintenu). Utilise `release-please` (Google) ou `changesets` (pnpm/monorepos).
+
+`release-please` fonctionne via GitHub Actions : à chaque push sur `main`, il ouvre/met à jour une PR de release. Quand tu merges cette PR, il crée automatiquement le tag et la release GitHub.
 
 ```bash
-npm install -D standard-version
+# Pas de CLI à installer — tout passe par l'action GitHub
+# Voir section "GitHub Actions pour les releases" ci-dessous
 ```
 
-```json
-// package.json
-{
-  "scripts": {
-    "release": "standard-version",
-    "release:minor": "standard-version --release-as minor",
-    "release:major": "standard-version --release-as major"
-  }
-}
-```
+Avec `changesets` (alternatif, idéal monorepo) :
 
 ```bash
-# Basé sur les conventional commits depuis le dernier tag
-npm run release
-# → Analyse les commits (feat → minor, fix → patch)
-# → Met à jour package.json version
-# → Génère/met à jour CHANGELOG.md
-# → Crée un commit "chore(release): 1.2.0"  
-# → Crée un tag v1.2.0
+pnpm add -D @changesets/cli
+pnpm changeset init
+# → Crée .changeset/config.json
+# → pnpm changeset  : déclare un changement (feat/fix/breaking)
+# → pnpm changeset version : bump versions + génère CHANGELOG
+# → pnpm changeset publish : publie sur npm
 ```
 
 ### CHANGELOG automatique
@@ -212,5 +207,5 @@ git switch -c feat/user-controller
 - **PR templates** : standardiser les descriptions et checklists
 - **CODEOWNERS** : reviewer automatique par zone de code
 - **Protected branches** : empêcher les merges sans review ni CI
-- **Conventional Commits + standard-version** : versionning et changelogs automatiques
+- **Conventional Commits + release-please** : versionning et changelogs automatiques (via GitHub Actions)
 - **Stacked PRs** : découper les grosses features en PRs séquentielles reviewables
