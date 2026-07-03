@@ -1,39 +1,17 @@
 {
   "name": "git-avance-course",
   "version": "1.0.0",
-  "description": "Formation Git avancé : internals, branching strategies, rebase interactif, bisect, hooks, worktrees, submodules, monorepos (intermédiaire → expert)",
+  "description": "Formation Git avancé : internals, branching strategies, rebase interactif, bisect, hooks, worktrees, submodules, monorepos, workflows (intermédiaire → expert)",
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview",
-    "lab:01": "npx tsx labs/lab-01-git-objects/exercise.ts",
-    "lab:02": "npx tsx labs/lab-02-branching-strategies/exercise.ts",
-    "lab:03": "npx tsx labs/lab-03-merge-rebase/exercise.ts",
-    "lab:04": "npx tsx labs/lab-04-rebase-interactif/exercise.ts",
-    "lab:05": "npx tsx labs/lab-05-bisect/exercise.ts",
-    "lab:06": "npx tsx labs/lab-06-hooks/exercise.ts",
-    "lab:07": "npx tsx labs/lab-07-worktrees-submodules/exercise.ts",
-    "lab:08": "npx tsx labs/lab-08-monorepo/exercise.ts",
-    "lab:09": "npx tsx labs/lab-09-workflows/exercise.ts",
-    "lab:10": "npx tsx labs/lab-10-projet-final/exercise.ts",
-    "solution:01": "npx tsx labs/lab-01-git-objects/solution.ts",
-    "solution:02": "npx tsx labs/lab-02-branching-strategies/solution.ts",
-    "solution:03": "npx tsx labs/lab-03-merge-rebase/solution.ts",
-    "solution:04": "npx tsx labs/lab-04-rebase-interactif/solution.ts",
-    "solution:05": "npx tsx labs/lab-05-bisect/solution.ts",
-    "solution:06": "npx tsx labs/lab-06-hooks/solution.ts",
-    "solution:07": "npx tsx labs/lab-07-worktrees-submodules/solution.ts",
-    "solution:08": "npx tsx labs/lab-08-monorepo/solution.ts",
-    "solution:09": "npx tsx labs/lab-09-workflows/solution.ts",
-    "solution:10": "npx tsx labs/lab-10-projet-final/solution.ts"
+    "docs:preview": "vitepress preview"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "vitepress": "^1.6.3",
-    "typescript": "^5.7.0",
-    "tsx": "^4.19.0"
+    "vitepress": "^1.6.3"
   }
 }
