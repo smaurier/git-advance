@@ -180,7 +180,7 @@ Le **type** pilote le bump de version SemVer (`MAJOR.MINOR.PATCH`) :
 | `feat!:` / `BREAKING CHANGE:` | MAJOR | 1.3.0 -> 2.0.0 |
 | `chore:`, `docs:`, `test:` | aucun | pas de release |
 
-**Changelog automatique** — deux outils standard (ne pas utiliser `standard-version`, déprécié depuis 2021) :
+**Changelog automatique** — deux outils standard (ne pas utiliser `standard-version`, déprécié depuis 2022) :
 
 - **release-please** (Google) : une GitHub Action qui, à chaque push sur `main`, ouvre/met à jour une PR de release regroupant les changements. Merger cette PR crée le tag + la release + le `CHANGELOG.md`.
 - **Changesets** (idéal monorepo pnpm) : chaque PR ajoute un fichier `.changeset/*.md` déclarant l'impact ; le versioning est décorrélé du message de commit.

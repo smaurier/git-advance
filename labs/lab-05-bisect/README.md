@@ -14,7 +14,7 @@ Tu vas fabriquer un vrai dépôt Git avec un historique piégé : un test vert a
 
 ### Setup — construire l'historique piégé
 
-Copie-colle ce bloc dans un terminal (bash). Il crée un dépôt de 12 commits dont **un** casse le test.
+Copie-colle ce bloc tel quel (bash / Git Bash / WSL). Il crée un dépôt de 12 commits dont **un** casse le test.
 
 ```bash
 mkdir tp-bisect && cd tp-bisect
@@ -65,6 +65,8 @@ git log --oneline
 echo "--- État actuel du test ---"
 node sum.test.js || echo "ROUGE (attendu)"
 ```
+
+> Note Windows : exécute ce lab sous **Git Bash** ou **WSL** — le bloc utilise des here-docs (`<<'EOF'`), `sed -i` et des boucles `for` qui sont du bash. En **PowerShell pur**, il faut adapter : remplacer les here-docs par des `Set-Content`, les `sed -i` par une édition manuelle de `sum.js`, et les boucles `for i in ...` par `foreach ($i in 1..5) { ... }`.
 
 Tu obtiens 12 commits. Le premier (`feat: sum + test`) est **bon**, `HEAD` est **mauvais**. Tu ne dois PAS regarder lequel casse — c'est ce que bisect va trouver.
 

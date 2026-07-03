@@ -157,14 +157,14 @@ Un **merge** crée un commit à **deux parents** ; c'est la seule façon d'avoir
 
 Un objet commit n'a pas de nom lisible — juste son hash. Les **refs** sont les étiquettes humaines posées dessus.
 
-**Une branche est un fichier de ~40 octets** contenant le hash du dernier commit :
+**Une branche est un fichier de 41 octets (40 hex + retour ligne)** contenant le hash du dernier commit :
 
 ```bash
 cat .git/refs/heads/main
 # d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3
 ```
 
-Créer une branche = écrire un fichier de 40 octets. C'est pour ça que brancher dans Git est instantané et gratuit. Committer sur une branche = **avancer ce pointeur** vers le nouveau commit.
+Créer une branche = écrire un fichier de 41 octets (40 hex + retour ligne). C'est pour ça que brancher dans Git est instantané et gratuit. Committer sur une branche = **avancer ce pointeur** vers le nouveau commit.
 
 **HEAD est le pointeur des pointeurs.** Il dit « sur quelle branche je suis » :
 
@@ -241,18 +241,18 @@ git cat-file -p HEAD
 
 # 2) Le tree racine — quelles entrées ?
 git cat-file -p HEAD^{tree}
-# 100644 blob 3fa0d4b842... README.md
+# 100644 blob 9eb85ff0d9... README.md
 #   → une entrée : le fichier README.md pointe vers ce blob
 
 # 3) Le blob — le contenu réel
-git cat-file -p 3fa0d4b842
+git cat-file -p 9eb85ff0d9
 # # TribuZen
 
 # 4) Vérifier le type + la taille de chaque objet
 git cat-file -t HEAD          # commit
 git cat-file -t HEAD^{tree}   # tree
-git cat-file -t 3fa0d4b842    # blob
-git cat-file -s 3fa0d4b842    # 11  (octets : "# TribuZen\n")
+git cat-file -t 9eb85ff0d9    # blob
+git cat-file -s 9eb85ff0d9    # 11  (octets : "# TribuZen\n")
 ```
 
 **Ce qu'on vient de prouver :** `commit → tree → blob`. Le commit ne contient pas le texte du README ; il contient le hash d'un tree, qui contient le hash d'un blob, qui contient le texte. Trois objets immuables reliés par hash.
@@ -262,7 +262,7 @@ git cat-file -s 3fa0d4b842    # 11  (octets : "# TribuZen\n")
 ```bash
 # Le hash d'un contenu est calculable SANS commit, avec hash-object
 echo "# TribuZen" | git hash-object --stdin
-# 3fa0d4b842...   ← EXACTEMENT le même hash que le blob du commit
+# 9eb85ff0d9...   ← EXACTEMENT le même hash que le blob du commit
 
 # Donc : recréer le même fichier ailleurs ne crée PAS un nouveau blob.
 # Même contenu = même hash = même objet, stocké une seule fois.
@@ -279,7 +279,7 @@ git add . && git commit -q -m "feat: squelette src"
 
 # Le tree racine — src apparaît comme une entrée de type tree
 git ls-tree HEAD
-# 100644 blob 3fa0d4b8...  README.md
+# 100644 blob 9eb85ff0...  README.md
 # 040000 tree 8c4f21a9...  src
 
 # Descendre récursivement, en ne montrant que les fichiers (blobs)
@@ -365,7 +365,7 @@ Ces réflexes reviennent dans **tout le cours** : `02-strategies-branching` mani
 3. Quatre types d'objets seulement : **blob** (contenu), **tree** (répertoire nom→hash), **commit** (snapshot + parents + méta), **tag annoté** (objet nommé).
 4. Tout est **snapshot, jamais diff** : un commit pointe un tree entier ; les diffs sont calculés à la volée.
 5. Le graphe est un DAG : chaque commit pointe ses parents ; un merge a deux parents.
-6. Une branche = un fichier de 40 octets pointant un commit ; HEAD pointe la branche courante (ou un commit en detached HEAD).
+6. Une branche = un fichier de 41 octets (40 hex + retour ligne) pointant un commit ; HEAD pointe la branche courante (ou un commit en detached HEAD).
 7. L'index (`.git/index`) est l'arbre du prochain snapshot ; `git add` écrit déjà les blobs.
 8. `cat-file -t/-p/-s`, `hash-object`, `ls-tree` sont les outils de plomberie pour explorer les objets.
 9. Le reflog garde les mouvements de refs ⇒ `reset --hard`/rebase sont récupérables tant que `gc` n'a pas expiré l'objet.
@@ -380,7 +380,7 @@ Git stocke-t-il des diffs ou des snapshots entre versions ?|Des snapshots comple
 Quels sont les 4 types d'objets Git et que contient chacun ?|blob = contenu d'un fichier (octets seuls) ; tree = répertoire (liste nom→hash) ; commit = snapshot (un tree) + parent(s) + métadonnées ; tag annoté = objet nommé enveloppant un commit avec taggeur+message.
 Que signifie "content-addressable" pour Git ?|L'adresse (hash) d'un objet est calculée à partir de son contenu. Conséquences : même contenu = même hash = objet stocké une seule fois (déduplication) ; contenu modifié = hash différent (objets immuables).
 Un blob contient-il le nom du fichier ?|Non. Le blob ne contient que le contenu. Le nom vit dans le tree parent (entrée nom→hash). Renommer sans changer le contenu ne crée pas de nouveau blob, seulement un nouveau tree.
-Qu'est-ce qu'une branche Git, concrètement ?|Un fichier d'environ 40 octets dans .git/refs/heads/ contenant le hash du commit de sommet. Créer/déplacer une branche = écrire ce fichier. Les commits "de la branche" sont ceux atteignables en remontant les parents.
+Qu'est-ce qu'une branche Git, concrètement ?|Un fichier de 41 octets (40 hex + retour ligne) dans .git/refs/heads/ contenant le hash du commit de sommet. Créer/déplacer une branche = écrire ce fichier. Les commits "de la branche" sont ceux atteignables en remontant les parents.
 Que fait git reset --hard au niveau des objets ? Est-ce récupérable ?|Il déplace le pointeur de branche (et HEAD), sans supprimer d'objets. Le commit reste dans objects/ et atteignable via git reflog. Récupérable tant que gc ne l'a pas expiré : git reflog puis git branch recup <hash>.
 À quoi sert le reflog ?|Il enregistre chaque mouvement des refs locales (HEAD, branches) : commit, reset, rebase, checkout, merge. Il rend récupérables des commits devenus inaccessibles par toute branche (par défaut ~90 jours).
 Le staging area (index) est-il une liste de fichiers ?|Non, c'est l'arbre complet du prochain snapshot (.git/index, binaire), avec le hash de blob de chaque fichier. git add écrit déjà le blob dans objects/ ; le commit ne fait que figer l'index en objets tree.

@@ -1,7 +1,7 @@
 ---
 titre: Git bisect et debugging d'historique
 cours: 07-git-avance
-notions: [recherche binaire sur les commits, git bisect start/good/bad/reset, git bisect run automatisé, codes de sortie 0/1-124/125, git bisect skip et log/replay, complexité O(log n), git blame avec -L, ignorer les commits de reformatage, pickaxe git log -S et -G, git log --follow, git diff avancé]
+notions: [recherche binaire sur les commits, git bisect start/good/bad/reset, git bisect run automatisé, codes de sortie 0/1-127 sauf 125/128+, git bisect skip et log/replay, complexité O(log n), git blame avec -L, ignorer les commits de reformatage, pickaxe git log -S et -G, git log --follow, git diff avancé]
 outcomes: [trouver le commit fautif par recherche binaire manuelle, automatiser la recherche avec git bisect run, retrouver quand et pourquoi une ligne a été introduite avec blame et pickaxe]
 prerequis: [04-rebase-interactif]
 next: 06-git-hooks-automatisation
@@ -358,11 +358,15 @@ git bisect reset          # revient à la branche + HEAD d'origine
 # ❌ Le script rend TOUJOURS 0 (un `echo` final masque le code de test)
 run_tests; echo "fini"      # exit = celui du echo = 0 → tout classé "good"
 
-# ❌ exit 255 (souvent "commande introuvable") → ≥128 → bisect ABANDONNE
+# ❌ « command not found » rend exit 127 → dans la plage 1-127 = bisect classe BAD
+#    (piège réel : un vieux commit où l'outil n'existe pas encore est faussement
+#     marqué mauvais → il faut `exit 125` pour SKIP ces commits non testables)
+# ❌ Un vrai ABANDON exige ≥128 (ex. `exit 128`, ou un test tué par SIGKILL → 137)
 # ✅ Rendre explicitement 0 / 1 / 125, et laisser le testeur porter le code
 npx vitest run src/x.test.ts   # dernière commande = code propre 0/1
-# et pour les commits non buildables :
+# et pour les commits non buildables ou sans l'outil :
 npm run build || exit 125
+command -v vitest >/dev/null || exit 125
 ```
 
 Règle : la **dernière** commande du script doit être le test, ou termine par un `exit` explicite. `125` = non testable (skip), jamais un autre code pour ça.
@@ -446,7 +450,7 @@ tribuzen/
 
 1. `git bisect` fait une recherche binaire sur l'historique : O(log n) vérifications au lieu de O(n) — doubler l'historique n'ajoute qu'une étape.
 2. Cycle manuel : `git bisect start` → `git bisect bad` (bug présent) → `git bisect good <ref>` (bug absent) → répéter → `git bisect reset`.
-3. `git bisect run <cmd>` automatise tout : Git lit le **code de sortie** (0 = good, 1-124 = bad, 125 = skip) et déroule seul les ~log2(n) étapes.
+3. `git bisect run <cmd>` automatise tout : Git lit le **code de sortie** (0 = good, 1–127 sauf 125 = bad, 125 = skip, 128+ = abandon) et déroule seul les ~log2(n) étapes.
 4. Un test qui rend 0/non-zéro (`npm test`, `vitest run`, `pytest`) marche directement avec `bisect run` ; un script dédié ajoute `exit 125` pour les commits non buildables.
 5. Toujours finir par `git bisect reset` pour sortir du HEAD détaché.
 6. `git blame [-L a,b]` dit qui a écrit chaque ligne aujourd'hui ; `--ignore-rev`/`.git-blame-ignore-revs` évitent que les commits de reformatage masquent l'auteur logique.

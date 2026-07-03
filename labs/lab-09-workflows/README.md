@@ -58,15 +58,23 @@ Essaie d'exécuter chaque étape **sans regarder le corrigé** d'abord. Bloque-t
 
 ```bash
 # ─── Étape 1 — Protéger main ───────────────────────────────────────
-# On exige une PR + 1 approbation. L'API protection attend un JSON.
+# On exige une PR + 1 approbation. L'API protection attend un JSON complet.
 # (Sur repo perso, tu es admin : tu pourras merger tes propres PR.)
+# ATTENTION : les champs null/booléens/entiers doivent être du VRAI JSON.
+# Avec -f, gh enverrait la chaîne "null" et un count en string → HTTP 422.
+# On passe donc le corps via --input - (heredoc JSON) :
 gh api -X PUT repos/:owner/tribuzen-lab09/branches/main/protection \
   -H "Accept: application/vnd.github+json" \
-  -f "required_status_checks=null" \
-  -F "enforce_admins=false" \
-  -f "required_pull_request_reviews[required_approving_review_count]=1" \
-  -f "restrictions=null" \
-  -F "required_linear_history=true"        # force squash/rebase, pas de merge commit
+  --input - <<'JSON'
+{
+  "required_status_checks": null,
+  "enforce_admins": false,
+  "required_pull_request_reviews": { "required_approving_review_count": 1 },
+  "restrictions": null,
+  "required_linear_history": true
+}
+JSON
+# required_linear_history: true force squash/rebase, pas de merge commit.
 
 # Preuve que le push direct est bloqué (échec ATTENDU) :
 echo "hack" >> README.md

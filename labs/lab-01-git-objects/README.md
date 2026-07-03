@@ -87,11 +87,11 @@ git cat-file -p HEAD          # affiche : tree <hash>, author, committer, messag
 
 git cat-file -t HEAD^{tree}   # tree     ← HEAD^{tree} = le tree racine du commit
 git cat-file -p HEAD^{tree}
-# 100644 blob 3fa0d4b8...  README.md     ← une entrée : nom → hash de blob
+# 100644 blob 9eb85ff0...  README.md     ← une entrée : nom → hash de blob
 
-git cat-file -t 3fa0d4b8      # blob
-git cat-file -p 3fa0d4b8      # # TribuZen        ← le contenu réel, enfin
-git cat-file -s 3fa0d4b8      # 11                ← taille en octets ("# TribuZen\n")
+git cat-file -t 9eb85ff0      # blob
+git cat-file -p 9eb85ff0      # # TribuZen        ← le contenu réel, enfin
+git cat-file -s 9eb85ff0      # 11                ← taille en octets ("# TribuZen\n")
 
 # CE QU'ON A PROUVÉ : le commit ne contient AUCUN texte de fichier.
 # Il pointe un tree, qui pointe un blob, qui porte le contenu.
@@ -101,7 +101,7 @@ git cat-file -s 3fa0d4b8      # 11                ← taille en octets ("# Tribu
 # ÉTAPE 3 — Déduplication par contenu
 # ════════════════════════════════════════════════════════════════
 echo "# TribuZen" | git hash-object --stdin
-# 3fa0d4b8...   ← IDENTIQUE au hash du blob de l'étape 2
+# 9eb85ff0...   ← IDENTIQUE au hash du blob de l'étape 2
 
 # POURQUOI : le hash est une fonction déterministe du contenu.
 # Même contenu "# TribuZen\n" ⇒ même hash ⇒ Git ne stocke qu'UN blob,
@@ -117,7 +117,7 @@ echo "export const InviteForm = () => null;" > src/features/invite/InviteForm.ts
 git add . && git commit -q -m "feat(invite): InviteForm"
 
 git ls-tree HEAD
-# 100644 blob 3fa0d4b8...  README.md
+# 100644 blob 9eb85ff0...  README.md
 # 040000 tree 9a1c...      src          ← src est un TREE, pas un blob
 
 git ls-tree -r HEAD --name-only         # -r descend récursivement, ne montre que les blobs

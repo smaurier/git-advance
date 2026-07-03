@@ -371,6 +371,8 @@ git push
 
 C'est ce double mouvement (submodule → parent) qui explique pourquoi une session se termine toujours par un « bump de pointeur ».
 
+> **Deux repos, deux rôles — à ne pas confondre.** `fullstack-autotraining` est le **repo pédagogique** : l'exemple vivant de submodules dont on parle ici. À partir des modules 08 à 10, le fil-rouge bascule sur `smaurier/tribuzen`, qui est **l'application** elle-même, montée en **monorepo** (workspaces pnpm, pas de submodules). L'un t'apprend les submodules sur un cas réel ; l'autre est l'app que tu construis en monorepo. Deux dépôts distincts, deux architectures volontairement opposées.
+
 ---
 
 ## 6. Points clés

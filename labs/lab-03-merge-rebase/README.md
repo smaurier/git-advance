@@ -114,7 +114,8 @@ git rebase main
 # export const MAX_RITUELS = 10;
 # =======
 # export const MAX_RITUELS = 8;
-# >>>>>>> feature: rituels hebdo  ← THEIRS = TON commit en cours de rejeu, MAX = 8
+# >>>>>>> 1111aaa (feat: rituels hebdo)  ← THEIRS = TON commit en cours de rejeu, MAX = 8
+#   (en rebase le marqueur montre <short-sha> (<sujet>), PAS le nom de branche)
 
 printf 'export const MAX_RITUELS = 10;\n' > rituels.ts
 git add rituels.ts

@@ -91,7 +91,7 @@ Quand il y a divergence, Git ne compare pas juste deux versions. Il en regarde *
 
 Git calcule `base → ours` et `base → theirs`. Si les deux côtés ont touché **des zones différentes**, il combine automatiquement. Si les deux ont touché **la même zone**, il ne peut pas décider seul → **conflit**.
 
-> `ours`/`theirs` s'inversent en rebase (voir 2.9) : c'est la source classique d'erreur. Retiens : `ours` = la branche sur laquelle tu es assis pendant l'opération.
+> `ours`/`theirs` s'inversent en rebase (voir 2.9) : c'est la source classique d'erreur. Mnémo **valable uniquement en MERGE** : `ours` = la branche sur laquelle tu es assis. Formulation générale plus sûre : `ours` = la destination sur laquelle on rejoue/fusionne (en rebase, c'est la base, ex. `main`), pas forcément la branche checkoutée.
 
 ### 2.3 Rebase : réécrire les commits sur une nouvelle base
 
@@ -144,6 +144,8 @@ const MAX = 5;
 const MAX = 8;
 >>>>>>> feature/rituels-hebdo   ← fin de THEIRS (branche entrante)
 ```
+
+> Ci-dessus, c'est un **merge** : le marqueur `theirs` porte le **nom de branche**. En **rebase**, il porte à la place le **`<short-sha> (<sujet>)`** du commit rejoué, ex. `>>>>>>> 1111aaa (feat: rituels hebdo)` — et `ours`/`theirs` s'y inversent (voir 2.9).
 
 Résoudre = **éditer le fichier** pour obtenir l'état final voulu (garder l'un, l'autre, ou combiner), **supprimer les trois marqueurs**, puis `git add`.
 

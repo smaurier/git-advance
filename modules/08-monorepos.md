@@ -141,13 +141,14 @@ Le **hoisting** consiste à remonter les dépendances communes des packages vers
 - **npm/yarn classiques** aplatissent tout dans le `node_modules` racine par défaut. Rapide, mais dangereux : un package peut importer une lib qu'il n'a **pas** déclarée, simplement parce qu'un voisin l'a hoistée (« phantom dependency »). Le jour où le voisin la retire, ton package casse sans qu'aucun `package.json` n'ait changé.
 - **pnpm** utilise par défaut un `node_modules` **non-plat** avec liens symboliques : chaque package ne voit QUE ce qu'il a déclaré. C'est plus strict et ça élimine les phantom dependencies. Le disque est économisé par un *content-addressable store* global partagé entre tous les projets de ta machine.
 
-Si tu as besoin d'ajuster le comportement, pnpm expose `nodeLinker` (`isolated` par défaut, ou `hoisted` pour imiter npm) et `hoistingLimits` (`workspaces` pour ne hoister que jusqu'à chaque package).
+Si tu as besoin d'ajuster le comportement, pnpm expose `node-linker` (`isolated` par défaut, ou `hoisted` pour imiter npm). En pnpm 9 (la version ciblée par ce cours), ces réglages vivent dans un `.npmrc` en kebab-case :
 
-```yaml
-# pnpm-workspace.yaml — imiter le hoisting npm si un outil legacy l'exige
-nodeLinker: hoisted
-hoistingLimits: workspaces
+```ini
+# .npmrc — imiter le hoisting npm si un outil legacy l'exige (pnpm 9)
+node-linker=hoisted
 ```
+
+> pnpm 11.5+ déplace ces options dans `pnpm-workspace.yaml` en camelCase (`nodeLinker: hoisted`, `hoistingLimits: workspaces`). Sur pnpm 9, reste sur `.npmrc`.
 
 > Honnêteté : le hoisting strict de pnpm révèle parfois des bugs latents (des libs qui comptaient sur les phantom dependencies). C'est un mal pour un bien — mais attends-toi à corriger quelques `package.json` en migrant vers pnpm.
 
