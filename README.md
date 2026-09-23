@@ -7,14 +7,14 @@
 <!-- labs-gestes:start -->
 ## Labs — refonte du 22/09/2026 : un lab = un geste métier complet
 
-> Règle qualité 5 du parcours : chaque lab est **un geste métier complet**, sous deux formes — **Zéro** (construire de zéro un artefact réel et entier) ou **Intervention** (modifier de l'existant avec consommateurs, findings avant code, non-régression). Un lab n'entre en file qu'avec un **oracle exécutable** (`src/` starter · `test/` · `solution/` séparée). Les labs historiques de ce cours (un concept par lab, sans oracle) restent dans `labs/` jusqu'à remplacement et **ne sont plus la file**. Cible détaillée : [`docs/gestes-complets.md`](../docs/gestes-complets.md). État : **3/4 avec oracle**.
+> Règle qualité 5 du parcours : chaque lab est **un geste métier complet**, sous deux formes — **Zéro** (construire de zéro un artefact réel et entier) ou **Intervention** (modifier de l'existant avec consommateurs, findings avant code, non-régression). Un lab n'entre en file qu'avec un **oracle exécutable** (`src/` starter · `test/` · `solution/` séparée). Les labs historiques de ce cours (un concept par lab, sans oracle) restent dans `labs/` jusqu'à remplacement et **ne sont plus la file**. Cible détaillée : [`docs/gestes-complets.md`](../docs/gestes-complets.md). État : **4/4 avec oracle**.
 
 | # | Lab | Forme | Geste | Oracle |
 |---|-----|-------|-------|--------|
 | 01 | [`lab-01-strategie-de-branches`](labs/lab-01-strategie-de-branches/README.md) | Zéro | sur un vrai repo | ✅ vérifié |
 | 02 | [`lab-02-bisect-une-regression`](labs/lab-02-bisect-une-regression/README.md) | Intervention | réelle | ✅ vérifié |
 | 03 | [`lab-03-rebase-une-branche-sale`](labs/lab-03-rebase-une-branche-sale/README.md) | Intervention | historique propre | ✅ vérifié |
-| 04 | `lab-04-conflit-sans-perte` | Intervention | résoudre sans perdre de travail | · à écrire |
+| 04 | [`lab-04-conflit-sans-perte`](labs/lab-04-conflit-sans-perte/README.md) | Intervention | résoudre sans perdre de travail | ✅ vérifié |
 
 <!-- labs-gestes:end -->
 
