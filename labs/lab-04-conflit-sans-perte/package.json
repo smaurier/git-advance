@@ -1,0 +1,10 @@
+{
+  "name": "lab-04-conflit-sans-perte",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lab": "node run-oracle.mjs lab",
+    "solution": "node run-oracle.mjs solution"
+  }
+}
