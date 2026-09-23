@@ -1,5 +1,6 @@
 {
   "name": "lab-03-rebase-une-branche-sale",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
