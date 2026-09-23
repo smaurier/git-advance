@@ -1,0 +1,9 @@
+{
+  "name": "lab-03-rebase-une-branche-sale",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lab": "node run-oracle.mjs lab",
+    "solution": "node run-oracle.mjs solution"
+  }
+}
